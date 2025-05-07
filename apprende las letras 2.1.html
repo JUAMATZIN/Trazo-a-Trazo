@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aprende Letras y Números</title>
+
+  <!-- Google Fonts: manuscritas y cursivas -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Indie+Flower&family=Dancing+Script&display=swap" rel="stylesheet">
+  
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Howler.js para sonidos -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #fefae0;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #333;
+    }
+
+    .letter-display {
+      font-family: 'Dancing Script', cursive;
+      font-size: 8rem;
+      color: #ff4081;
+      margin: 1rem 0;
+    }
+
+    .options {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .option {
+      font-size: 4rem;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 20px;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+      min-width: 80px;
+    }
+
+    .option:hover {
+      transform: scale(1.1);
+      border-color: #ff4081;
+    }
+
+    .option1 { font-family: 'Pacifico', cursive; }
+    .option2 { font-family: 'Indie Flower', cursive; }
+    .option3 { font-family: 'Dancing Script', cursive; }
+  </style>
+</head>
+<body>
+  <h1>¿Cuál es la letra o número correcto?</h1>
+  <div class="letter-display" id="questionLetter">a</div>
+  <div class="options" id="optionsContainer"></div>
+
+  <script>
+    const characters = "abcdefghijklmnopqrstuvwxyz0123456789".split('');
+    const fonts = ['option1', 'option2', 'option3'];
+
+    const successSound = new Howl({
+      src: ['https://freesound.org/data/previews/341/341695_6262515-lq.mp3'] // sonido correcto
+    });
+
+    const errorSound = new Howl({
+      src: ['https://freesound.org/data/previews/109/109662_945474-lq.mp3'] // sonido incorrecto
+    });
+
+    function getRandomChar() {
+      return characters[Math.floor(Math.random() * characters.length)];
+    }
+
+    function shuffleArray(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    function generateQuestion() {
+      const correctChar = getRandomChar();
+      document.getElementById('questionLetter').textContent = correctChar;
+
+      const options = new Set([correctChar]);
+      while (options.size < 3) {
+        options.add(getRandomChar());
+      }
+
+      const shuffled = shuffleArray([...options]);
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      shuffled.forEach((char, index) => {
+        const div = document.createElement('div');
+        div.textContent = char;
+        div.className = `option ${fonts[index % fonts.length]}`;
+        div.onclick = () => checkAnswer(char, correctChar);
+        container.appendChild(div);
+      });
+    }
+
+    function checkAnswer(selected, correct) {
+      if (selected === correct) {
+        successSound.play();
+        Swal.fire({
+          icon: 'success',
+          title: '¡Muy bien!',
+          text: `Elegiste correctamente: "${correct}"`,
+          confirmButtonColor: '#ff4081'
+        }).then(generateQuestion);
+      } else {
+        errorSound.play();
+        Swal.fire({
+          icon: 'error',
+          title: '¡Oh no!',
+          text: `"${selected}" no es la respuesta correcta.`,
+          confirmButtonColor: '#ff4081'
+        });
+      }
+    }
+
+    // Inicializar la primera pregunta
+    generateQuestion();
+  </script>
+</body>
+</html>
